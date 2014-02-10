@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TempSensing</string>
+    <string name="action_settings">Settings</string>
+    <string name="TempReadingC">Celsius: 0</string>
+    <string name="TempReadingF">Fahrenheit: 0</string>
+    <string name="ValueMulti01">1.0</string>
+    <string name="ValueMulti02">1.0</string>
+    <string name="ValueMulti03">1.0</string>
+
+</resources>
