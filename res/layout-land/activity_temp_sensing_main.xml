@@ -153,4 +153,5 @@
         android:text="@string/ValueMulti03"
         android:textSize="30sp" />
 
+
 </RelativeLayout>

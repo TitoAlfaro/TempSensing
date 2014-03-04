@@ -34,11 +34,11 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	//final float fahrenheit
 
 	//UI
-	private TextView TempCelsius1;
+	private TextView TempPeriod1;
 	private TextView TempFahrenheit1;
-	private TextView TempCelsius2;
+	private TextView TempPeriod2;
 	private TextView TempFahrenheit2;
-	private TextView TempCelsius3;
+	private TextView TempPeriod3;
 	private TextView TempFahrenheit3;
 	private Button Button01Plus, Button01Minus;
 	private Button Button02Plus, Button02Minus;
@@ -63,7 +63,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		
 		//getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-		TempCelsius1 = (TextView) findViewById(R.id.tempC1);
+		TempPeriod1 = (TextView) findViewById(R.id.tempP1);
 		TempFahrenheit1 = (TextView) findViewById(R.id.tempF1);
 		
 		Button01Plus = (Button) findViewById(R.id.Button01Plus);
@@ -73,7 +73,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		Vol01 = (TextView) findViewById(R.id.ValueMulti01);
 		
 		
-		TempCelsius2 = (TextView) findViewById(R.id.tempC2);
+		TempPeriod2 = (TextView) findViewById(R.id.tempP2);
 		TempFahrenheit2 = (TextView) findViewById(R.id.tempF2);
 
 		Button02Plus = (Button) findViewById(R.id.Button02Plus);
@@ -83,7 +83,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		Vol02 = (TextView) findViewById(R.id.ValueMulti02);
 		
 		
-		TempCelsius3 = (TextView) findViewById(R.id.tempC3);
+		TempPeriod3 = (TextView) findViewById(R.id.tempP3);
 		TempFahrenheit3 = (TextView) findViewById(R.id.tempF3);
 
 		Button03Plus = (Button) findViewById(R.id.Button03Plus);
@@ -203,10 +203,10 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 
 		switch ((int)address){
 		case 90:
-			TempCelsius1.post(new Runnable() {
+			TempPeriod1.post(new Runnable() {
 				public void run() {
-					TempCelsius1.setText("fahrenheit 1: "+ fahrenheit);
-					TempFahrenheit1.setText("Period: "+ String.format("%.2f", period1));
+					TempPeriod1.setText("Period: "+ fahrenheit);
+					TempFahrenheit1.setText("Fahrenheit 1: "+ String.format("%.2f", period1));
 					Vol01.setText("Multiplier: "+ String.format("%.2f", valueMultiplier01));
 				}
 			});
@@ -218,9 +218,9 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 			}
 			break;
 		case 42:
-			TempCelsius2.post(new Runnable() {
+			TempPeriod2.post(new Runnable() {
 				public void run() {
-					TempCelsius2.setText("fahrenheit 2: "+ fahrenheit);
+					TempPeriod2.setText("fahrenheit 2: "+ fahrenheit);
 					TempFahrenheit2.setText("Period 2: "+ String.format("%.2f", period2));
 					Vol02.setText("Multiplier: "+ String.format("%.2f", valueMultiplier02));
 				}
@@ -233,9 +233,9 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 			}*/
 			break;
 		case 52:
-			TempCelsius3.post(new Runnable() {
+			TempPeriod3.post(new Runnable() {
 				public void run() {
-					TempCelsius3.setText("fahrenheit 3: "+ fahrenheit);
+					TempPeriod3.setText("fahrenheit 3: "+ fahrenheit);
 					TempFahrenheit3.setText("Period 3: "+ String.format("%.2f", period3));
 					Vol03.setText("Multiplier: "+ String.format("%.2f", valueMultiplier03));
 				}
