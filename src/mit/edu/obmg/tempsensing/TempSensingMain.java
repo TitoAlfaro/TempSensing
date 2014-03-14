@@ -96,7 +96,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	protected void onStart(){
 		super.onStart();
 	}
-
+	
 	protected void onStop(){
 		super.onStop();
 		//mVibrate01.close();
