@@ -28,14 +28,12 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	float rate1 = 1000;
 	float rate2 = 1000;
 	float rate3 = 1000;
-	DigitalOutput out; //out2, out3;
+	DigitalOutput out;
 		
 	//Sensor I2C
 	private TwiMaster twi;
 	double sensortemp;
 	
-	//TempSense
-	//final float fahrenheit
 
 	//UI
 	private TextView TempPeriod1;
@@ -130,20 +128,20 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		protected void setup() throws ConnectionLostException {
 			twi = ioio_.openTwiMaster(0, TwiMaster.Rate.RATE_100KHz, true);
 						
-			//mVibrate01 = ioio_.openPwmOutput(mVibrate_pin01, freq01);
-			//mVibrate02 = ioio_.openPwmOutput(mVibrate_pin02, freq02);
-			//mVibrate03 = ioio_.openPwmOutput(mVibrate_pin03, freq03);
+			mVibrate01 = ioio_.openPwmOutput(mVibrate_pin01, freq01);
+			mVibrate02 = ioio_.openPwmOutput(mVibrate_pin02, freq02);
+			mVibrate03 = ioio_.openPwmOutput(mVibrate_pin03, freq03);
 			//InitSensor(0x00, twi);
 			//changeAddress(twi,0x5A);
 			//checkAddress(twi);
 			
-			try {
+			/*try {
 				Vibration thread_ = new Vibration(ioio_);
 				thread_.start();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 		}
 
 		@Override
@@ -207,11 +205,11 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		Log.i(TAG, "Address: "+address+" F: "+fahrenheit); 
 		
 		period1 = (float) //(Math.pow(fahrenheit, valueMultiplier01)+200);
-						  	((Math.pow(2, fahrenheit/10))+valueMultiplier01);
+						  	((Math.pow(2, fahrenheit/7))+valueMultiplier01);
 		period2 = (float) 	//(Math.pow(fahrenheit, valueMultiplier02));
-			  				((Math.pow(2, fahrenheit/10))+valueMultiplier02);
+			  				((Math.pow(2, fahrenheit/7))+valueMultiplier02);
 		period3 = (float) 	//(Math.pow(fahrenheit, valueMultiplier03)+50);
-			  				((Math.pow(2, fahrenheit/10))+valueMultiplier03);
+			  				((Math.pow(2, fahrenheit/7))+valueMultiplier03);
 
 
 		switch ((int)address){
@@ -238,12 +236,12 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 					Vol02.setText("Multiplier: "+ String.format("%.2f", valueMultiplier02));
 				}
 			});
-			/*try {
+			try {
 				mVibrate02.setPulseWidth(period2);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}*/
+			}
 			break;
 		case 52:
 			TempPeriod3.post(new Runnable() {
@@ -263,7 +261,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		}
 	}
 
-	class Vibration extends Thread{
+	/*class Vibration extends Thread{
     	private DigitalOutput led;
     	
     	private IOIO ioio_;
@@ -277,11 +275,11 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 			while (true) {
 				try {
 					led = ioio_.openDigitalOutput(0, true);
-					out = ioio_.openDigitalOutput(34, DigitalOutput.Spec.Mode.OPEN_DRAIN, false);
+					out = ioio_.openDigitalOutput(34, true);
 					//out2 = ioio_.openDigitalOutput(mVibrate_pin02, true);
 					//out3 = ioio_.openDigitalOutput(mVibrate_pin03, true);
 					while (true) {
-						rate1 = period1;
+						rate = period1;
 						//rate2 = period2;
 						//rate3 = period3;
 						
@@ -305,7 +303,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 				}
 			}
     	}
-    }
+    }*/
 	
 	public void checkAddress(TwiMaster port){
 		Log.i(TAG, ":| Checking Address...");
