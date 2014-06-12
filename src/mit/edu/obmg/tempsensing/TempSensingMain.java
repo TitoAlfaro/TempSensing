@@ -58,22 +58,6 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	private float period1, period2, period3 = 0;
 	private double valueMultiplier01 = 0, valueMultiplier02 = 0, valueMultiplier03 = 0;
 
-	/*
-	 *  TONES  ==========================================
-	 * Start by defining the relationship between 
-	 * 
-	 *	       note, period, &  frequency. 
-	 *	#define  c     3830     261 Hz 
-	 *	#define  d     3400     294 Hz 
-	 *	#define  e     3038     329 Hz 
-	 *	#define  f     2864     349 Hz 
-	 *	#define  g     2550     392 Hz 
-	 *	#define  a     2272     440 Hz 
-	 *	#define  b     2028     493 Hz 
-	 *	#define  C     1912     523 Hz 
-	 */
-
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -114,7 +98,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	protected void onStart(){
 		super.onStart();
 	}
-
+	
 	protected void onStop(){
 		super.onStop();
 //		mVibrate01.close();
@@ -135,6 +119,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 			//changeAddress(twi,0x5A);
 			//checkAddress(twi);
 			
+<<<<<<< HEAD
 			/*try {
 				Vibration thread_ = new Vibration(ioio_);
 				thread_.start();
@@ -142,14 +127,25 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}*/
+=======
+//			try {
+//				Vibration thread_ = new Vibration(ioio_);
+//				thread_.start();
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+>>>>>>> master
 		}
 
 		@Override
 		public void loop() throws ConnectionLostException {
 			try {				
+				
 				ReadSensor(0x34, twi);		//dec 52
 				ReadSensor(0x2a, twi);		//dec 42
 				ReadSensor(0x5a, twi);		//dec 90
+				
 				
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
@@ -165,6 +161,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	// temperature sensors
 	public void ReadSensor(int address, TwiMaster port) {
 
+		
 		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Wake Tag");
 		wl.acquire();
@@ -175,19 +172,23 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		double tempFactor = 0.02;				//0.02 degrees per LSB (measurement resolution of the MLX90614)
 
 		try {
+			Log.d(TAG, ":| Trying to read");
 			port.writeRead(address, false, request,request.length,tempdata,tempdata.length);
 
 			receivedTemp = (double)(((tempdata[1] & 0x007f) << 8)+ tempdata[0]);
 			receivedTemp = (receivedTemp * tempFactor)-0.01;
 
-			Log.d(TAG, "ReceivedTemp: "+ receivedTemp);
+			Log.d(TAG, ":) success reading");
+			Log.i(TAG, "ReceivedTemp: "+ receivedTemp);
 
 			handleTemp(address, receivedTemp);
 
 		} catch (ConnectionLostException e) {
+			Log.d(TAG, ":( read ConnLost");
 			// TODO Auto-generated catch block 
 			e.printStackTrace();
 		} catch (InterruptedException e) {
+			Log.d(TAG, ":( read InterrExcept");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -196,7 +197,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	}
 
 	private void handleTemp (double address, double temp){
-		//Log.d(TAG, "Address: "+address);
+		Log.d(TAG, ":| Handle TEMP Address: "+address);
 
 		final float celsius = (float) (temp - 273.15);
 		Log.i(TAG, "Address: "+address+" C: "+celsius); 
@@ -222,7 +223,7 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 				}
 			});
 			try {
-				mVibrate01.setPulseWidth(period1);
+				mVibrate02.setPulseWidth(period1);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -251,12 +252,12 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 					Vol03.setText("Multiplier: "+ String.format("%.2f", valueMultiplier03));
 				}
 			});
-			try {
+		/*	try {
 				mVibrate03.setPulseWidth(period3);
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 			break;
 		}
 	}
@@ -280,13 +281,28 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 					//out3 = ioio_.openDigitalOutput(mVibrate_pin03, true);
 					while (true) {
 						rate = period1;
+<<<<<<< HEAD
 						//rate2 = period2;
 						//rate3 = period3;
+=======
+						//Log.i (TAG, "Rate= "+ rate);
 						
-						led.write(true);
+						/*mRateValue.post(new Runnable() {
+							public void run() {
+								mRateValue.setText("Rate: "+ rate/2);
+							}
+						});*/
+>>>>>>> master
+						
+						//led.write(true);
 						out.write(true);
+<<<<<<< HEAD
 						sleep((long) rate1/2);
 						led.write(false);
+=======
+						sleep((long) rate/2);
+						//led.write(false);
+>>>>>>> master
 						out.write(false);
 						sleep((long) rate1/2);
 					}
@@ -319,8 +335,11 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 				}
 			} catch (ConnectionLostException e) {
 				// TODO Auto-generated catch block
+				Log.i(TAG, ":(  Address "+ i+ " doesn't work! Connection Lost");
 				e.printStackTrace();
 			} catch (InterruptedException e) {
+
+				Log.i(TAG, ":(  Address "+ i+ " doesn't work! Interrupted Exception");
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
