@@ -6876,6 +6876,8 @@ We've spent an enormous amount of time creating and checking these footprints an
 <pinref part="FET01" gate="G$1" pin="G"/>
 <pinref part="R6" gate="G$1" pin="2"/>
 <wire x1="132.08" y1="73.66" x2="137.16" y2="73.66" width="0.1524" layer="91"/>
+<wire x1="132.08" y1="73.66" x2="121.92" y2="73.66" width="0.1524" layer="91"/>
+<junction x="132.08" y="73.66"/>
 </segment>
 </net>
 <net name="N$6" class="0">
@@ -6892,6 +6894,9 @@ We've spent an enormous amount of time creating and checking these footprints an
 <wire x1="160.02" y1="121.92" x2="170.18" y2="121.92" width="0.1524" layer="91"/>
 <pinref part="U3" gate="G$1" pin="SCL/VZ"/>
 <wire x1="170.18" y1="121.92" x2="170.18" y2="109.22" width="0.1524" layer="91"/>
+<wire x1="170.18" y1="109.22" x2="175.26" y2="109.22" width="0.1524" layer="91"/>
+<wire x1="175.26" y1="109.22" x2="175.26" y2="127" width="0.1524" layer="91"/>
+<junction x="170.18" y="109.22"/>
 </segment>
 </net>
 <net name="N$16" class="0">
@@ -6900,6 +6905,9 @@ We've spent an enormous amount of time creating and checking these footprints an
 <pinref part="R12" gate="G$1" pin="2"/>
 <wire x1="170.18" y1="104.14" x2="170.18" y2="91.44" width="0.1524" layer="91"/>
 <wire x1="170.18" y1="91.44" x2="160.02" y2="91.44" width="0.1524" layer="91"/>
+<wire x1="170.18" y1="104.14" x2="177.8" y2="104.14" width="0.1524" layer="91"/>
+<wire x1="177.8" y1="104.14" x2="177.8" y2="127" width="0.1524" layer="91"/>
+<junction x="170.18" y="104.14"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -6934,6 +6942,8 @@ We've spent an enormous amount of time creating and checking these footprints an
 <pinref part="C1" gate="G$1" pin="2"/>
 <pinref part="R1" gate="G$1" pin="2"/>
 <wire x1="165.1" y1="73.66" x2="165.1" y2="81.28" width="0.1524" layer="91"/>
+<wire x1="165.1" y1="81.28" x2="172.72" y2="81.28" width="0.1524" layer="91"/>
+<junction x="165.1" y="81.28"/>
 </segment>
 </net>
 <net name="N$18" class="0">

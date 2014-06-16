@@ -7085,10 +7085,10 @@ We've spent an enormous amount of time creating and checking these footprints an
 <part name="GND3" library="supply1" deviceset="GND" device=""/>
 <part name="GND6" library="supply1" deviceset="GND" device=""/>
 <part name="GND1" library="supply1" deviceset="GND" device=""/>
-<part name="H1" library="holes" deviceset="MOUNT-HOLE" device="3.0"/>
-<part name="H2" library="holes" deviceset="MOUNT-HOLE" device="3.0"/>
-<part name="H3" library="holes" deviceset="MOUNT-HOLE" device="3.0"/>
-<part name="H4" library="holes" deviceset="MOUNT-HOLE" device="3.0"/>
+<part name="H1" library="holes" deviceset="MOUNT-HOLE" device="2.8" value="MOUNT-HOLE2.8"/>
+<part name="H2" library="holes" deviceset="MOUNT-HOLE" device="2.8" value="MOUNT-HOLE2.8"/>
+<part name="H3" library="holes" deviceset="MOUNT-HOLE" device="2.8" value="MOUNT-HOLE2.8"/>
+<part name="H4" library="holes" deviceset="MOUNT-HOLE" device="2.8" value="MOUNT-HOLE2.8"/>
 </parts>
 <sheets>
 <sheet>
