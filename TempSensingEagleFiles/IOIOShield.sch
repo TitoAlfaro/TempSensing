@@ -2273,7 +2273,7 @@ wire to board 2.54 mm (0.100") pitch header</description>
 <pinref part="POWER" gate="-13" pin="S"/>
 </segment>
 </net>
-<net name="N$4" class="0">
+<net name="GND" class="0">
 <segment>
 <wire x1="38.1" y1="48.26" x2="58.42" y2="48.26" width="0.1524" layer="91"/>
 <pinref part="X4" gate="G$1" pin="6"/>
@@ -2281,7 +2281,7 @@ wire to board 2.54 mm (0.100") pitch header</description>
 <pinref part="POWER" gate="-6" pin="S"/>
 </segment>
 </net>
-<net name="N$5" class="0">
+<net name="3.3V" class="0">
 <segment>
 <wire x1="38.1" y1="45.72" x2="60.96" y2="45.72" width="0.1524" layer="91"/>
 <pinref part="X4" gate="G$1" pin="7"/>
@@ -2289,7 +2289,7 @@ wire to board 2.54 mm (0.100") pitch header</description>
 <pinref part="POWER" gate="-5" pin="S"/>
 </segment>
 </net>
-<net name="N$6" class="0">
+<net name="CLK" class="0">
 <segment>
 <pinref part="X4" gate="G$1" pin="4"/>
 <wire x1="53.34" y1="55.88" x2="53.34" y2="88.9" width="0.1524" layer="91"/>
@@ -2299,7 +2299,7 @@ wire to board 2.54 mm (0.100") pitch header</description>
 <wire x1="66.04" y1="48.26" x2="71.12" y2="48.26" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$8" class="0">
+<net name="SDA" class="0">
 <segment>
 <pinref part="X4" gate="G$1" pin="8"/>
 <wire x1="63.5" y1="45.72" x2="63.5" y2="88.9" width="0.1524" layer="91"/>
