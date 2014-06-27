@@ -2,6 +2,7 @@ package mit.edu.obmg.tempsensing;
 
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
+import ioio.lib.api.PwmOutput;
 import ioio.lib.api.TwiMaster;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
@@ -18,24 +19,16 @@ import android.widget.TextView;
 
 public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	private final String TAG = "TempSensingMain";
-	private PowerManager.WakeLock wl;
 	
 	//MultiThreading
-	private Thread Vibration1, Vibration2, Vibration3;
-	Thread thread1 = new Thread(Vibration1);
-	Thread thread2 = new Thread(Vibration2);
-	Thread thread3 = new Thread(Vibration3);
+	private Thread Vibration;
+	Thread thread = new Thread(Vibration);
 	
 	//Vibration
 	float rate1 = 1000;
 	float rate2 = 1000;
 	float rate3 = 1000;
-	private double valueMultiplier01 = 0, valueMultiplier02 = 0, valueMultiplier03 = 0;
-	float temp1, temp2, temp3;
-	int[] vibPin = {38, 39, 40};
-	int vibPin1 = 38;
-	int vibPin2 = 39;
-	int vibPin3 = 40;
+	DigitalOutput out;
 		
 	//Sensor I2C
 	private TwiMaster twi;
@@ -53,17 +46,25 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	private Button Button02Plus, Button02Minus;
 	private Button Button03Plus, Button03Minus;
 	private TextView Vol01, Vol02, Vol03;
-	float fahrenheit, celsius;
+
+	//Vibration output
+	private PwmOutput mVibrate01, mVibrate02, mVibrate03;
+	private int mVibrate_pin01 = 34;
+	private int mVibrate_pin02 = 35;
+	private int mVibrate_pin03 = 36;
+	private int freq01 = 50;
+	private int freq02 = 50;
+	private int freq03 = 50;
+	private float period1, period2, period3 = 0;
+	private double valueMultiplier01 = 0, valueMultiplier02 = 0, valueMultiplier03 = 0;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_temp_sensing_main);
-
-		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
-				| PowerManager.ON_AFTER_RELEASE, TAG);
-				
+		
+		//getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		
 		TempPeriod1 = (TextView) findViewById(R.id.tempP1);
 		TempFahrenheit1 = (TextView) findViewById(R.id.tempF1);
 		
@@ -100,56 +101,55 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	
 	protected void onStop(){
 		super.onStop();
+//		mVibrate01.close();
+//		mVibrate02.close();
+//		mVibrate03.close();
 	}
 
 	class Looper extends BaseIOIOLooper {
-		
-		private Vibration[] vibThread_ = new Vibration[3];
 
 		@Override
-		protected void setup() throws ConnectionLostException, InterruptedException {
-			wl.acquire();
+		protected void setup() throws ConnectionLostException {
 			twi = ioio_.openTwiMaster(0, TwiMaster.Rate.RATE_100KHz, true);
-															
-				for (int i = 0; i < 3; ++i) {
-					vibThread_[i] = new Vibration(ioio_, vibPin[i], i);
-					vibThread_[i].start();
-				}
+						
+			mVibrate01 = ioio_.openPwmOutput(mVibrate_pin01, freq01);
+			mVibrate02 = ioio_.openPwmOutput(mVibrate_pin02, freq02);
+			mVibrate03 = ioio_.openPwmOutput(mVibrate_pin03, freq03);
+			//InitSensor(0x00, twi);
+			//changeAddress(twi,0x5A);
+			//checkAddress(twi);
+			
+<<<<<<< HEAD
+			/*try {
+				Vibration thread_ = new Vibration(ioio_);
+				thread_.start();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}*/
+=======
+//			try {
+//				Vibration thread_ = new Vibration(ioio_);
+//				thread_.start();
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+>>>>>>> master
 		}
 
 		@Override
 		public void loop() throws ConnectionLostException {
-			ReadSensor(0x34, twi);		//dec 52
-			ReadSensor(0x2a, twi);		//dec 42
-			ReadSensor(0x5a, twi);		//dec 90
-			try {
+			try {				
+				
+				ReadSensor(0x34, twi);		//dec 52
+				ReadSensor(0x2a, twi);		//dec 42
+				ReadSensor(0x5a, twi);		//dec 90
+				
+				
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
-				
-		}
-		
-		@Override
-		public void disconnected() {
-			Log.i(TAG, "IOIO disconnected, killing workers");
-			for (int i = 0; i < vibThread_.length; ++i) {
-				if (vibThread_[i] != null) {
-					vibThread_[i].abort();
-				}
-			}
-			try {
-				for (int i = 0; i < vibThread_.length; ++i) {
-					if (vibThread_[i] != null) {
-						vibThread_[i].join();
-					}
-				}
-				
-				Log.i(TAG, "All workers dead");
-			} catch (InterruptedException e) {
-				Log.w(TAG, "Interrupted. Some workers may linger.");
-			}
-		
-			wl.release();
 		}
 	}
 
@@ -161,6 +161,11 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	// temperature sensors
 	public void ReadSensor(int address, TwiMaster port) {
 
+		
+		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Wake Tag");
+		wl.acquire();
+		
 		byte[] request = new byte[] { 0x07 };	//Byte address to ask for sensor data
 		byte[] tempdata = new byte[2];			//Byte to save sensor data
 		double receivedTemp = 0x0000;			//Value after processing sensor data
@@ -188,112 +193,122 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 			e.printStackTrace();
 		}
 		
+		 wl.release();
 	}
 
-	private void handleTemp (double address, double temp) throws InterruptedException{
+	private void handleTemp (double address, double temp){
 		Log.d(TAG, ":| Handle TEMP Address: "+address);
 
-		celsius = (float) (temp - 273.15);
+		final float celsius = (float) (temp - 273.15);
 		Log.i(TAG, "Address: "+address+" C: "+celsius); 
 
-		fahrenheit = (float) ((celsius*1.8) + 32);
+		final float fahrenheit = (float) ((celsius*1.8) + 32);
 		Log.i(TAG, "Address: "+address+" F: "+fahrenheit); 
 		
+		period1 = (float) //(Math.pow(fahrenheit, valueMultiplier01)+200);
+						  	((Math.pow(2, fahrenheit/7))+valueMultiplier01);
+		period2 = (float) 	//(Math.pow(fahrenheit, valueMultiplier02));
+			  				((Math.pow(2, fahrenheit/7))+valueMultiplier02);
+		period3 = (float) 	//(Math.pow(fahrenheit, valueMultiplier03)+50);
+			  				((Math.pow(2, fahrenheit/7))+valueMultiplier03);
+
+
 		switch ((int)address){
 		case 90:
-			temp1 = celsius;
-			
 			TempPeriod1.post(new Runnable() {
 				public void run() {
-					TempPeriod1.setText("Fahrenheit"+ fahrenheit);
-					TempFahrenheit1.setText("Celsius: "+ celsius);
+					TempPeriod1.setText("Fahrenheit 1"+ fahrenheit);
+					TempFahrenheit1.setText("Period: "+ String.format("%.2f", period1));
 					Vol01.setText("Multiplier: "+ String.format("%.2f", valueMultiplier01));
 				}
 			});
+			try {
+				mVibrate02.setPulseWidth(period1);
+			} catch (ConnectionLostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
-			
 		case 42:
-			temp2 = celsius;
-
 			TempPeriod2.post(new Runnable() {
 				public void run() {
-					TempPeriod2.setText("Fahrenheit"+ fahrenheit);
-					TempFahrenheit2.setText("Celsius: "+ celsius);
+					TempPeriod2.setText("Fahrenheit 2: "+ fahrenheit);
+					TempFahrenheit2.setText("Period 2: "+ String.format("%.2f", period2));
 					Vol02.setText("Multiplier: "+ String.format("%.2f", valueMultiplier02));
 				}
-			});			
+			});
+			try {
+				mVibrate02.setPulseWidth(period2);
+			} catch (ConnectionLostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
-			
 		case 52:
-			temp3 = celsius;
-
 			TempPeriod3.post(new Runnable() {
 				public void run() {
-					TempPeriod3.setText("Faherenheit: "+ fahrenheit);
-					TempFahrenheit3.setText("Celsius: "+ celsius);
+					TempPeriod3.setText("Period 3: "+ fahrenheit);
+					TempFahrenheit3.setText("Fahrenheit 3: "+ String.format("%.2f", period3));
 					Vol03.setText("Multiplier: "+ String.format("%.2f", valueMultiplier03));
 				}
 			});
+		/*	try {
+				mVibrate03.setPulseWidth(period3);
+			} catch (ConnectionLostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}*/
 			break;
 		}
 	}
-	
-	class Vibration extends Thread {
 
-		private IOIO ioio_;
-		private boolean run_ = true;
-		int vibPin_;
-		DigitalOutput out;
-		int threadNum_;
-		float inTemp_;
-
-		public Vibration(IOIO ioio, int vibPin, int threadNum) throws InterruptedException {
-			ioio_ = ioio;
-			vibPin_ = vibPin;
-			threadNum_ = threadNum;			
-		}
-		
-		
-
-		@Override
-		public void run() {
-			
-			Log.d(TAG, "Thread [" + getName() + "] is running.");
-			while (run_) {
+	/*class Vibration extends Thread{
+    	private DigitalOutput led;
+    	
+    	private IOIO ioio_;
+    	
+    	public Vibration(IOIO ioio)throws InterruptedException{
+    		ioio_ = ioio;
+    	}
+    	
+    	public void run(){
+    		super.run();
+			while (true) {
 				try {
-					out = ioio_.openDigitalOutput(vibPin_, false);
+					led = ioio_.openDigitalOutput(0, true);
+					out = ioio_.openDigitalOutput(34, true);
+					//out2 = ioio_.openDigitalOutput(mVibrate_pin02, true);
+					//out3 = ioio_.openDigitalOutput(mVibrate_pin03, true);
 					while (true) {
-
-						switch  (threadNum_){
-						case 0:
-							inTemp_ = temp1;
-							break;
-							
-						case 1:
-							inTemp_ = temp2;
-							break;
-							
-						case 2:
-							inTemp_ = temp3;
-							break;
-						}
+						rate = period1;
+<<<<<<< HEAD
+						//rate2 = period2;
+						//rate3 = period3;
+=======
+						//Log.i (TAG, "Rate= "+ rate);
 						
-						float rate = map(inTemp_, 
-								(float) 10, // minSensor.getValue(),
-								(float) 50, // maxSensor.getValue(),
-								(float) 1000, 
-								(float) 10);
-
+						/*mRateValue.post(new Runnable() {
+							public void run() {
+								mRateValue.setText("Rate: "+ rate/2);
+							}
+						});*/
+>>>>>>> master
+						
+						//led.write(true);
 						out.write(true);
-						sleep((long) 50);
+<<<<<<< HEAD
+						sleep((long) rate1/2);
+						led.write(false);
+=======
+						sleep((long) rate/2);
+						//led.write(false);
+>>>>>>> master
 						out.write(false);
-						sleep((int) rate);
-						Log.i(TAG, "Vibration [" + getName() + "] Rate: " + rate); 
-
+						sleep((long) rate1/2);
 					}
 				} catch (ConnectionLostException e) {
 				} catch (Exception e) {
-					Log.e(TAG, "Unexpected exception caught", e);
+					Log.e("HelloIOIOPower", "Unexpected exception caught", e);
 					ioio_.disconnect();
 					break;
 				} finally {
@@ -303,105 +318,8 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 					}
 				}
 			}
-		}
-		
-		public void abort() {
-			run_ = false;
-			interrupt();
-		}
-	}
-
-//	class Vibration2 extends Thread {
-//
-//		private IOIO ioio_;
-//
-//		public Vibration2(IOIO ioio) throws InterruptedException {
-//			ioio_ = ioio;
-//		}
-//
-//		public void run() {
-//			super.run();
-//			while (true) {
-//				try {
-//					// led = ioio_.openDigitalOutput(0, true);
-//					out = ioio_.openDigitalOutput(vibPin2, false);
-//					while (true) {
-//
-//						float rate = map(temp2, 
-//								(float) 10, // minSensor.getValue(),
-//								(float) 50, // maxSensor.getValue(),
-//								(float) 1000, 
-//								(float) 5);
-//
-//						// led.write(false);
-//						out.write(true);
-//						sleep((long) 50);
-//						// led.write(true);
-//						out.write(false);
-//						sleep((long) rate);
-//						Log.i(TAG, "Vibration 2 Rate: " + rate); 
-//
-//					}
-//				} catch (ConnectionLostException e) {
-//				} catch (Exception e) {
-//					Log.e(TAG, "Unexpected exception caught", e);
-//					ioio_.disconnect();
-//					break;
-//				} finally {
-//					try {
-//						ioio_.waitForDisconnect();
-//					} catch (InterruptedException e) {
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	class Vibration3 extends Thread {
-//
-//		private IOIO ioio_;
-//
-//		public Vibration3(IOIO ioio) throws InterruptedException {
-//			ioio_ = ioio;
-//		}
-//
-//		public void run() {
-//			super.run();
-//			while (true) {
-//				try {
-//					//led = ioio_.openDigitalOutput(0, true);
-//					out = ioio_.openDigitalOutput(vibPin3, false);
-//					while (true) {
-//
-//						float rate = map(temp3, 
-//								(float) 10, // minSensor.getValue(),
-//								(float) 50, // maxSensor.getValue(),
-//								(float) 1000, 
-//								(float) 5);
-//
-//						//led.write(false);
-//						out.write(true);
-//						sleep((long) 50);
-//						//led.write(true);
-//						out.write(false);
-//						sleep((long) rate);
-//						Log.i(TAG, "Vibration 3 Rate: " + rate); 
-//
-//					}
-//				} catch (ConnectionLostException e) {
-//				} catch (Exception e) {
-//					Log.e(TAG, "Unexpected exception caught", e);
-//					ioio_.disconnect();
-//					break;
-//				} finally {
-//					try {
-//						ioio_.waitForDisconnect();
-//					} catch (InterruptedException e) {
-//					}
-//				}
-//			}
-//		}
-//	}
+    	}
+    }*/
 	
 	public void checkAddress(TwiMaster port){
 		Log.i(TAG, ":| Checking Address...");
@@ -480,17 +398,4 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 
 		}
 	}
-	
-	float map(float x, float in_min, float in_max, float out_min, float out_max) {
-		if (x < in_min)
-			return out_min;
-		else if (x > in_max)
-			return out_max;
-		else
-			return (x - in_min) * (out_max - out_min) / (in_max - in_min)
-					+ out_min;
-	}
-	
 }
-
-	
