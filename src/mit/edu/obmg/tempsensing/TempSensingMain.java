@@ -32,10 +32,12 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 	float rate3 = 1000;
 	private double valueMultiplier01 = 0, valueMultiplier02 = 0, valueMultiplier03 = 0;
 	float temp1, temp2, temp3;
+	int sensorNum_;
 	int[] vibPin = {38, 39, 40};
 	int vibPin1 = 38;
 	int vibPin2 = 39;
 	int vibPin3 = 40;
+	DigitalOutput out, out0, out1, out2;
 
 	//Sensor I2C
 	private TwiMaster twi;
@@ -111,8 +113,12 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 			wl.acquire();
 			twi = ioio_.openTwiMaster(0, TwiMaster.Rate.RATE_100KHz, true);
 
+			out0 = ioio_.openDigitalOutput(38, false);
+			out1 = ioio_.openDigitalOutput(39, false);
+			out2 = ioio_.openDigitalOutput(40, false);
+
 				for (int i = 0; i < 3; ++i) {
-					vibThread_[i] = new Vibration(ioio_, vibPin[i], i);
+					vibThread_[i] = new Vibration(ioio_, i);
 					vibThread_[i].start();
 				}
 		}
@@ -201,11 +207,12 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 
 		switch ((int)address){
 		case 90:
+			sensorNum_ = 2;
 			temp1 = celsius;
 
 			TempPeriod1.post(new Runnable() {
 				public void run() {
-					TempPeriod1.setText("Fahrenheit"+ fahrenheit);
+					//TempPeriod1.setText("Fahrenheit"+ fahrenheit);
 					TempFahrenheit1.setText("Celsius: "+ celsius);
 					Vol01.setText("Multiplier: "+ String.format("%.2f", valueMultiplier01));
 				}
@@ -213,11 +220,12 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 			break;
 
 		case 42:
+			sensorNum_ = 1;
 			temp2 = celsius;
 
 			TempPeriod2.post(new Runnable() {
 				public void run() {
-					TempPeriod2.setText("Fahrenheit"+ fahrenheit);
+					//TempPeriod2.setText("Fahrenheit"+ fahrenheit);
 					TempFahrenheit2.setText("Celsius: "+ celsius);
 					Vol02.setText("Multiplier: "+ String.format("%.2f", valueMultiplier02));
 				}
@@ -225,11 +233,12 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 			break;
 
 		case 52:
+			sensorNum_ = 3;
 			temp3 = celsius;
 
 			TempPeriod3.post(new Runnable() {
 				public void run() {
-					TempPeriod3.setText("Faherenheit: "+ fahrenheit);
+					//TempPeriod3.setText("Faherenheit: "+ fahrenheit);
 					TempFahrenheit3.setText("Celsius: "+ celsius);
 					Vol03.setText("Multiplier: "+ String.format("%.2f", valueMultiplier03));
 				}
@@ -243,13 +252,11 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 		private IOIO ioio_;
 		private boolean run_ = true;
 		int vibPin_;
-		DigitalOutput out;
 		int threadNum_;
 		float inTemp_;
 
-		public Vibration(IOIO ioio, int vibPin, int threadNum) throws InterruptedException {
+		public Vibration(IOIO ioio, int threadNum) throws InterruptedException {
 			ioio_ = ioio;
-			vibPin_ = vibPin;
 			threadNum_ = threadNum;			
 		}
 
@@ -257,38 +264,59 @@ public class TempSensingMain extends IOIOActivity implements OnClickListener{
 
 		@Override
 		public void run() {
-
 			Log.d(TAG, "Thread [" + getName() + "] is running.");
+			
 			while (run_) {
-				try {
-					out = ioio_.openDigitalOutput(vibPin_, false);
+				try {				
 					while (true) {
 
-						switch  (threadNum_){
+						switch  (sensorNum_){
 						case 0:
-							inTemp_ = temp1;
+							inTemp_ = temp3;
+								float rate = map(inTemp_, 
+										(float) 10, // minSensor.getValue(),
+										(float) 50, // maxSensor.getValue(),
+										(float) 1000, 
+										(float) 10);
+
+								out1.write(true);
+								sleep((long) 100);
+								out1.write(false);
+								sleep((int) rate);
 							break;
 
 						case 1:
 							inTemp_ = temp2;
+								rate = map(inTemp_, 
+										(float) 10, // minSensor.getValue(),
+										(float) 50, // maxSensor.getValue(),
+										(float) 1000, 
+										(float) 10);
+
+								out0.write(true);
+								sleep((long) 100);
+								out0.write(false);
+								sleep((int) rate);
+							
 							break;
 
 						case 2:
-							inTemp_ = temp3;
+							inTemp_ = temp1;
+								rate = map(inTemp_, 
+										(float) 10, // minSensor.getValue(),
+										(float) 50, // maxSensor.getValue(),
+										(float) 1000, 
+										(float) 10);
+
+								out2.write(true);
+								sleep((long) 100);
+								out2.write(false);
+								sleep((int) rate);
+							
 							break;
 						}
 
-						float rate = map(inTemp_, 
-								(float) 10, // minSensor.getValue(),
-								(float) 50, // maxSensor.getValue(),
-								(float) 1000, 
-								(float) 10);
-
-						out.write(true);
-						sleep((long) 50);
-						out.write(false);
-						sleep((int) rate);
-						Log.i(TAG, "Vibration [" + getName() + "] Rate: " + rate); 
+						 
 
 					}
 				} catch (ConnectionLostException e) {
