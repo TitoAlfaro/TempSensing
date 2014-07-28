@@ -4,11 +4,11 @@
     <string name="app_name">TempSensing</string>
     <string name="action_settings">Settings</string>
     <string name="TempReadingP">Period: 0</string>
-    <string name="TempReadingF">Fahrenheit: 0</string>
+    <string name="TempReadingF">Temp: 0</string>
     <string name="ValueMulti01">1.0</string>
-    <string name="ValueMulti02">1.0</string>
-    <string name="ValueMulti03">1.0</string>
     <string name="PlusSign">+</string>
     <string name="MinusSign">-</string>
+    <string name="SensorMinVal">0.0</string>
+    <string name="SensorMaxVal">3.0</string>
     
 </resources>
