@@ -9,13 +9,19 @@ import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GraphView.GraphViewData;
+import com.jjoe64.graphview.GraphViewSeries;
+import com.jjoe64.graphview.GraphViewStyle.GridStyle;
+import com.jjoe64.graphview.LineGraphView;
 
 public class TempSensingMain extends IOIOActivity/* implements OnClickListener */{
 	private final String TAG = "TempSensingMain";
@@ -44,6 +50,13 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 	private TextView Vol01;
 	float fahrenheit, celsius;
 	private NumberPicker minTemp, maxTemp;
+	
+	//Graph
+    private final Handler mHandler = new Handler();
+    private Runnable mTimer2;
+    private GraphView graphView;
+    private double graph2LastXValue = 5d;
+    GraphViewSeries exampleSeries;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -56,12 +69,6 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 
 		_vibRate = (TextView) findViewById(R.id.tempP1);
 		tempValue = (TextView) findViewById(R.id.tempF1);
-//
-//		Button01Plus = (Button) findViewById(R.id.Button01Plus);
-//		Button01Plus.setOnClickListener(this);
-//		Button01Minus = (Button) findViewById(R.id.Button01Minus);
-//		Button01Minus.setOnClickListener(this);
-//		Vol01 = (TextView) findViewById(R.id.ValueMulti01);
 
 		String[] sensorNums = new String[31];
 		for (int i = 0; i < sensorNums.length; i++) {
@@ -85,6 +92,27 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 		maxTemp.setValue(30);
 		maxTemp
 				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		
+		
+		/**** GRAPH VIEW ****/
+		// init example series data
+		exampleSeries = new GraphViewSeries(new GraphViewData[] {
+		    new GraphViewData(0, 0)
+		});
+		
+		graphView = new LineGraphView(
+		    this // context
+		    , "GraphViewDemo" // heading
+		);
+		graphView.addSeries(exampleSeries); // data
+        graphView.setViewPort(1, 8);
+        graphView.setScalable(true);
+        graphView.getGraphViewStyle().setGridStyle(GridStyle.VERTICAL);
+        graphView.setShowHorizontalLabels(false);
+		 
+		LinearLayout layout = (LinearLayout) findViewById(R.id.Graph);
+		layout.addView(graphView);
+		/**** GRAPH VIEW ****/
 	}
 
 	protected void onStart() {
@@ -196,8 +224,8 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 		_vibRate.post(new Runnable() {
 			public void run() {
 				tempValue.setText("Celsius(3): " + celsius);
-				Vol01.setText("Multiplier: "
-						+ String.format("%.2f", valueMultiplier01));
+//				Vol01.setText("Multiplier: "
+//						+ String.format("%.2f", valueMultiplier01));
 			}
 		});
 		return celsius;
@@ -317,20 +345,6 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 		}
 	}
 
-//	@Override
-//	public void onClick(View v) {
-//		switch (v.getId()) {
-//		case R.id.Button01Plus:
-//			valueMultiplier01 += 100;
-//			break;
-//
-//		case R.id.Button01Minus:
-//			valueMultiplier01 -= 100;
-//			break;
-//
-//		}
-//	}
-
 	float map(float x, float in_min, float in_max, float out_min, float out_max) {
 		if (x < in_min)
 			return out_min;
@@ -340,5 +354,29 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 			return (x - in_min) * (out_max - out_min) / (in_max - in_min)
 					+ out_min;
 	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		/*** Graph ****/
+		mTimer2 = new Runnable() {
+            @Override
+            public void run() {
+                graph2LastXValue += 0.1d;
+                exampleSeries.appendData(new GraphViewData(graph2LastXValue, celsius), true, 80);
+                mHandler.postDelayed(this, 200);
+            }
+        };
+        mHandler.postDelayed(mTimer2, 1000);
+		/*** Graph ****/
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+        mHandler.removeCallbacks(mTimer2);
+	}
+	
 
 }

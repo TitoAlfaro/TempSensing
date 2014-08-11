@@ -41,4 +41,15 @@
         android:layout_alignLeft="@+id/tempP1"
         android:layout_below="@+id/tempP1" />
 
+    <LinearLayout
+        android:id="@+id/Graph"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@id/minTemp"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical" >
+
+    </LinearLayout>
+
 </RelativeLayout>
