@@ -7,13 +7,13 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".TempSensingMain" >
-    
-      <TextView
+
+    <TextView
         android:id="@+id/tempF1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
         android:layout_marginLeft="3dp"
+        android:layout_marginTop="2dp"
         android:text="@string/TempReadingF"
         android:textSize="30sp" />
 
@@ -21,34 +21,34 @@
         android:id="@+id/tempP1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/tempF1"
         android:layout_below="@id/tempF1"
         android:layout_marginTop="3dp"
         android:text="@string/TempReadingP"
         android:textSize="30sp" />
 
-    <NumberPicker
-        android:id="@+id/maxTemp"
-        android:layout_width="50dip"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/minTemp"
-        android:layout_toRightOf="@+id/minTemp" />
-
-    <NumberPicker
-        android:id="@+id/minTemp"
-        android:layout_width="50dip"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/tempP1"
-        android:layout_below="@+id/tempP1" />
-
     <LinearLayout
-        android:id="@+id/Graph"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@id/minTemp"
-        android:layout_centerHorizontal="true"
-        android:orientation="vertical" >
+        android:layout_below="@id/tempP1" >
+
+        <NumberPicker
+            android:id="@+id/maxTemp"
+            android:layout_width="50dip"
+            android:layout_height="wrap_content" />
+
+        <NumberPicker
+            android:id="@+id/minTemp"
+            android:layout_width="50dip"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/Graph"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:orientation="vertical" >
+
+        </LinearLayout>
 
     </LinearLayout>
 

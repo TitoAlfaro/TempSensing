@@ -7,11 +7,27 @@ import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.sql.Timestamp;
+
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -26,6 +42,11 @@ import com.jjoe64.graphview.LineGraphView;
 public class TempSensingMain extends IOIOActivity/* implements OnClickListener */{
 	private final String TAG = "TempSensingMain";
 	private PowerManager.WakeLock wl;
+
+	// initialize variable data logging
+	static BufferedWriter OutputFile_GYR;
+	File gpxfile;
+	FileWriter gpxwriter;
 
 	// MultiThreading
 	private Thread Vibration1;
@@ -50,66 +71,86 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 	private TextView Vol01;
 	float fahrenheit, celsius;
 	private NumberPicker minTemp, maxTemp;
-	
-	//Graph
-    private final Handler mHandler = new Handler();
-    private Runnable mTimer2;
-    private GraphView graphView;
-    private double graph2LastXValue = 5d;
-    GraphViewSeries exampleSeries;
+	int minPicker = 0;
+	int maxPicker = 50;
+
+	// Graph
+	private final Handler mHandler = new Handler();
+	private Runnable mTimer2;
+	private GraphView graphView;
+	private double graph2LastXValue = 5d;
+	GraphViewSeries exampleSeries;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_temp_sensing_main);
 
-		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-		wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK
-				| PowerManager.ON_AFTER_RELEASE, TAG);
-
 		_vibRate = (TextView) findViewById(R.id.tempP1);
 		tempValue = (TextView) findViewById(R.id.tempF1);
 
-		String[] sensorNums = new String[31];
-		for (int i = 0; i < sensorNums.length; i++) {
+		/**** DAta Log ****/
+		File path = new File(Environment.getExternalStorageDirectory()
+				+ "/application/tempSense");
+		if (!path.exists()) {
+			path.mkdirs();
+		}
+		path = new File(path.toString() + "/temSenseLog.txt");
+		String final_file = path.toString();
+
+		gpxfile = new File(final_file);
+
+		try {
+			gpxwriter = new FileWriter(gpxfile, false);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		OutputFile_GYR = new BufferedWriter(gpxwriter);
+		
+		try {
+			OutputFile_GYR.write("TempSense Log File " + DateFormat.format("dd-MM-yyyy hh:mm:ss \n", new java.util.Date()).toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/**** DAta Log ****/
+
+		String[] sensorNums = new String[maxPicker + 1];
+		for (int i = minPicker; i < sensorNums.length; i++) {
 			sensorNums[i] = Integer.toString(i);
 		}
 
 		minTemp = (NumberPicker) findViewById(R.id.minTemp);
-		minTemp.setMinValue(0);
-		minTemp.setMaxValue(30);
+		minTemp.setMinValue(minPicker);
+		minTemp.setMaxValue(maxPicker);
 		minTemp.setWrapSelectorWheel(false);
 		minTemp.setDisplayedValues(sensorNums);
-		minTemp.setValue(0);
-		minTemp
-				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+		minTemp.setValue(minPicker);
+		minTemp.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
 		maxTemp = (NumberPicker) findViewById(R.id.maxTemp);
-		maxTemp.setMinValue(0);
-		maxTemp.setMaxValue(30);
+		maxTemp.setMinValue(minPicker);
+		maxTemp.setMaxValue(maxPicker);
 		maxTemp.setWrapSelectorWheel(false);
 		maxTemp.setDisplayedValues(sensorNums);
-		maxTemp.setValue(30);
-		maxTemp
-				.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-		
-		
+		maxTemp.setValue(maxPicker);
+		maxTemp.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+
 		/**** GRAPH VIEW ****/
 		// init example series data
-		exampleSeries = new GraphViewSeries(new GraphViewData[] {
-		    new GraphViewData(0, 0)
-		});
-		
-		graphView = new LineGraphView(
-		    this // context
-		    , "GraphViewDemo" // heading
+		exampleSeries = new GraphViewSeries(
+				new GraphViewData[] { new GraphViewData(0, 0) });
+
+		graphView = new LineGraphView(this // context
+				, "TempSensing" // heading
 		);
 		graphView.addSeries(exampleSeries); // data
-        graphView.setViewPort(1, 8);
-        graphView.setScalable(true);
-        graphView.getGraphViewStyle().setGridStyle(GridStyle.VERTICAL);
-        graphView.setShowHorizontalLabels(false);
-		 
+		graphView.setViewPort(1, 8);
+		graphView.setScalable(true);
+		graphView.setScrollable(true);
+		graphView.getGraphViewStyle().setGridStyle(GridStyle.VERTICAL);
+		graphView.setShowHorizontalLabels(false);
+		graphView.setManualYAxisBounds(maxTemp.getValue(), minTemp.getValue());
+
 		LinearLayout layout = (LinearLayout) findViewById(R.id.Graph);
 		layout.addView(graphView);
 		/**** GRAPH VIEW ****/
@@ -117,10 +158,19 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 
 	protected void onStart() {
 		super.onStart();
+		// wl.acquire();
 	}
 
 	protected void onStop() {
 		super.onStop();
+		// close file
+
+		try {
+			OutputFile_GYR.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	class Looper extends BaseIOIOLooper {
@@ -130,7 +180,6 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 		@Override
 		protected void setup() throws ConnectionLostException,
 				InterruptedException {
-			wl.acquire();
 			twi = ioio_.openTwiMaster(0, TwiMaster.Rate.RATE_100KHz, true);
 
 			out = ioio_.openDigitalOutput(vibPin, false);
@@ -148,7 +197,6 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 				Thread.sleep(300);
 			} catch (InterruptedException e) {
 			}
-
 		}
 
 		@Override
@@ -167,7 +215,6 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 				Log.w(TAG, "Interrupted. Some workers may linger.");
 			}
 
-			wl.release();
 		}
 	}
 
@@ -224,10 +271,19 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 		_vibRate.post(new Runnable() {
 			public void run() {
 				tempValue.setText("Celsius(3): " + celsius);
-//				Vol01.setText("Multiplier: "
-//						+ String.format("%.2f", valueMultiplier01));
+				// Vol01.setText("Multiplier: "
+				// + String.format("%.2f", valueMultiplier01));
 			}
 		});
+
+		/**** DAta Log ****/
+		try {
+			OutputFile_GYR.write("\t"+celsius +"\t");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/**** DAta Log ****/
+
 		return celsius;
 	}
 
@@ -255,9 +311,10 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 					while (true) {
 
 						inTemp_ = celsius;
-						final float rate = map(inTemp_, (float) minTemp.getValue(), // minSensor.getValue(),
-								(float) maxTemp.getValue(), // maxSensor.getValue(),
-								(float) 1000, (float) 5);
+						final float rate = map(inTemp_,
+								(float) minTemp.getValue(),
+								(float) maxTemp.getValue(), (float) 1000,
+								(float) 5);
 
 						led.write(true);
 						out.write(true);
@@ -358,25 +415,28 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+
 		/*** Graph ****/
 		mTimer2 = new Runnable() {
-            @Override
-            public void run() {
-                graph2LastXValue += 0.1d;
-                exampleSeries.appendData(new GraphViewData(graph2LastXValue, celsius), true, 80);
-                mHandler.postDelayed(this, 200);
-            }
-        };
-        mHandler.postDelayed(mTimer2, 1000);
+			@Override
+			public void run() {
+				graph2LastXValue += 0.1d;
+				exampleSeries.appendData(new GraphViewData(graph2LastXValue,
+						celsius), true, 80);
+				mHandler.postDelayed(this, 200);
+				graphView.setManualYAxisBounds(maxTemp.getValue(),
+						minTemp.getValue());
+			}
+		};
+		mHandler.postDelayed(mTimer2, 1000);
 		/*** Graph ****/
+
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-        mHandler.removeCallbacks(mTimer2);
+		mHandler.removeCallbacks(mTimer2);
 	}
-	
-
 }
