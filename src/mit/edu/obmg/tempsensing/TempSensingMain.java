@@ -30,9 +30,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphView.GraphViewData;
@@ -68,7 +71,7 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 	// UI
 	private TextView _vibRate;
 	private TextView tempValue;
-	private Button btnStamper;
+	private ToggleButton btnStamper;
 	float fahrenheit, celsius;
 	private NumberPicker minTemp, maxTemp;
 	int minPicker = 0;
@@ -88,19 +91,31 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 
 		_vibRate = (TextView) findViewById(R.id.tempP1);
 		tempValue = (TextView) findViewById(R.id.tempF1);
-		btnStamper = (Button) findViewById(R.id.btnTStamp);
-		btnStamper.setOnClickListener(new View.OnClickListener() {
+		btnStamper = (ToggleButton) findViewById(R.id.btnTStamp);
+		btnStamper.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
-			public void onClick(View v) {
-				try {
-					OutputFile_GYR.write("\n"
-							+ DateFormat.format("dd-MM-yyyy hh:mm:ss \n",
-									new java.util.Date()).toString());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				 if (isChecked) {
+					 try {
+							OutputFile_GYR.write("\n------ Start of Turn ------"
+									+ DateFormat.format("dd-MM-yyyy hh:mm:ss \n",
+											new java.util.Date()).toString());
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+			        } else {
+			        	try {
+							OutputFile_GYR.write("\n------ End of Turn ------"
+									+ DateFormat.format("dd-MM-yyyy hh:mm:ss \n",
+											new java.util.Date()).toString());
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+			        }
+				
 			}
 		});
 

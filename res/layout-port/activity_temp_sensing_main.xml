@@ -52,13 +52,20 @@
         android:orientation="vertical" >
     </LinearLayout>
 
-    <Button
+   <TextView
+       android:id="@+id/textTimeStamp"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignLeft="@id/tempF1"
+       android:layout_marginLeft="300dp"
+       android:text="On Turn" />
+
+    <ToggleButton
         android:id="@+id/btnTStamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/tempP1"
-        android:layout_alignTop="@+id/tempF1"
-        android:layout_marginLeft="300dp"
-        android:text="Time Stamp" />
+        android:layout_alignLeft="@+id/textTimeStamp"
+        android:layout_below="@id/textTimeStamp"
+        android:text="turn" />
 
 </RelativeLayout>
