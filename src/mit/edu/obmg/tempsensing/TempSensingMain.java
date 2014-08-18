@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -67,8 +68,7 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 	// UI
 	private TextView _vibRate;
 	private TextView tempValue;
-	private Button Button01Plus, Button01Minus;
-	private TextView Vol01;
+	private Button btnStamper;
 	float fahrenheit, celsius;
 	private NumberPicker minTemp, maxTemp;
 	int minPicker = 0;
@@ -88,6 +88,21 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 
 		_vibRate = (TextView) findViewById(R.id.tempP1);
 		tempValue = (TextView) findViewById(R.id.tempF1);
+		btnStamper = (Button) findViewById(R.id.btnTStamp);
+		btnStamper.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				try {
+					OutputFile_GYR.write("\n"
+							+ DateFormat.format("dd-MM-yyyy hh:mm:ss \n",
+									new java.util.Date()).toString());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 
 		/**** DAta Log ****/
 		File path = new File(Environment.getExternalStorageDirectory()
@@ -95,7 +110,7 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 		if (!path.exists()) {
 			path.mkdirs();
 		}
-		path = new File(path.toString() + "/temSenseLog.txt");
+		path = new File(path.toString() + "/tempSenseLog.txt");
 		String final_file = path.toString();
 
 		gpxfile = new File(final_file);
@@ -106,9 +121,11 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 			e.printStackTrace();
 		}
 		OutputFile_GYR = new BufferedWriter(gpxwriter);
-		
+
 		try {
-			OutputFile_GYR.write("TempSense Log File " + DateFormat.format("dd-MM-yyyy hh:mm:ss \n", new java.util.Date()).toString());
+			OutputFile_GYR.write("TempSense Log File "
+					+ DateFormat.format("dd-MM-yyyy hh:mm:ss \n",
+							new java.util.Date()).toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -163,9 +180,12 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 
 	protected void onStop() {
 		super.onStop();
-		// close file
 
+		// close file
 		try {
+			OutputFile_GYR.write("\nEnd of File "
+					+ DateFormat.format("dd-MM-yyyy hh:mm:ss",
+							new java.util.Date()).toString());
 			OutputFile_GYR.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -278,7 +298,7 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 
 		/**** DAta Log ****/
 		try {
-			OutputFile_GYR.write("\t"+celsius +"\t");
+			OutputFile_GYR.write("\t" + celsius + "\t");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

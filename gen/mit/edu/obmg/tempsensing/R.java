@@ -25,7 +25,9 @@ public final class R {
     }
     public static final class id {
         public static final int Graph=0x7f0a0004;
-        public static final int action_settings=0x7f0a0005;
+        public static final int LinearLay01=0x7f0a0005;
+        public static final int action_settings=0x7f0a0007;
+        public static final int btnTStamp=0x7f0a0006;
         public static final int maxTemp=0x7f0a0002;
         public static final int minTemp=0x7f0a0003;
         public static final int tempF1=0x7f0a0000;
