@@ -98,8 +98,8 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				 if (isChecked) {
 					 try {
-							OutputFile_GYR.write("\n------ Start of Turn ------"
-									+ DateFormat.format("dd-MM-yyyy hh:mm:ss \n",
+							OutputFile_GYR.write("\nStart "
+									+ DateFormat.format("hh:mm:ss\t",
 											new java.util.Date()).toString());
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
@@ -107,8 +107,8 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 						}
 			        } else {
 			        	try {
-							OutputFile_GYR.write("\n------ End of Turn ------"
-									+ DateFormat.format("dd-MM-yyyy hh:mm:ss \n",
+							OutputFile_GYR.write("\tEnd "
+									+ DateFormat.format("hh:mm:ss\n",
 											new java.util.Date()).toString());
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
@@ -138,8 +138,7 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 		OutputFile_GYR = new BufferedWriter(gpxwriter);
 
 		try {
-			OutputFile_GYR.write("TempSense Log File "
-					+ DateFormat.format("dd-MM-yyyy hh:mm:ss \n",
+			OutputFile_GYR.write(DateFormat.format("dd-MM-yyyy hh:mm:ss\n",
 							new java.util.Date()).toString());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -306,14 +305,12 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 		_vibRate.post(new Runnable() {
 			public void run() {
 				tempValue.setText("Celsius(3): " + celsius);
-				// Vol01.setText("Multiplier: "
-				// + String.format("%.2f", valueMultiplier01));
 			}
 		});
 
 		/**** DAta Log ****/
 		try {
-			OutputFile_GYR.write("\t" + celsius + "\t");
+			OutputFile_GYR.write("\t" + celsius);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
