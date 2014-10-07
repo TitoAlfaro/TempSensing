@@ -183,7 +183,15 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 		graphView.setManualYAxisBounds(maxTemp.getValue(), minTemp.getValue());
 
 		LinearLayout layout = (LinearLayout) findViewById(R.id.Graph);
+		
+		if (btnStamper.isChecked()) {
+			layout.setVisibility(View.VISIBLE);
+		}else{
+			layout.setVisibility(View.GONE);
+		}	
 		layout.addView(graphView);
+		
+				
 		/**** GRAPH VIEW ****/
 	}
 
@@ -218,7 +226,7 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 
 			out = ioio_.openDigitalOutput(vibPin, false);
 
-			// checkAddress(twi);
+			//checkAddress(twi);
 
 			vibThread = new Vibration(ioio_);
 			vibThread.start();
@@ -226,7 +234,7 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 
 		@Override
 		public void loop() throws ConnectionLostException {
-			ReadSensor(0x34, twi); // dec 52
+			ReadSensor(0x2A, twi);
 			try {
 				Thread.sleep(300);
 			} catch (InterruptedException e) {
@@ -301,12 +309,14 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 
 		fahrenheit = (float) ((celsius * 1.8) + 32);
 		Log.i(TAG, "Address: " + address + " F: " + fahrenheit);
-
-		_vibRate.post(new Runnable() {
-			public void run() {
-				tempValue.setText("Celsius(3): " + celsius);
-			}
-		});
+		if (btnStamper.isChecked()) {
+			
+			_vibRate.post(new Runnable() {
+				public void run() {
+					tempValue.setText("Celsius: " + celsius);
+				}
+			});
+		}
 
 		/**** DAta Log ****/
 		try {
@@ -354,12 +364,15 @@ public class TempSensingMain extends IOIOActivity/* implements OnClickListener *
 						led.write(false);
 						out.write(false);
 						sleep((long) rate);
-
-						_vibRate.post(new Runnable() {
-							public void run() {
-								_vibRate.setText("Rate: " + rate);
-							}
-						});
+						if (btnStamper.isChecked()) {
+							
+							_vibRate.post(new Runnable() {
+								public void run() {
+									_vibRate.setText("Rate: " + rate);
+								}
+							});
+						}
+						
 					}
 				} catch (ConnectionLostException e) {
 				} catch (Exception e) {
